@@ -25,15 +25,9 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_TELEGRAM_BOT_USERNAME: ${{ secrets.VITE_TELEGRAM_BOT_USERNAME }}
-          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
-          PUBLIC_URL: ${{ secrets.VITE_BASE_URL }}
-
-      - name: Test build output
-        run: ls -la dist/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          cname: ${{ secrets.CNAME }} 
+          publish_dir: ./dist 
