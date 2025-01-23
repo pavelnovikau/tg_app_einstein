@@ -5,11 +5,10 @@ import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 import '../styles/App.css'
 import 'highlight.js/styles/github-dark.css'
-
-// Получаем WebApp из глобального объекта Telegram
-const tg = window.Telegram?.WebApp;
+import { useTelegram } from '../hooks/useTelegram'
 
 function App() {
+  const { tg } = useTelegram();
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
