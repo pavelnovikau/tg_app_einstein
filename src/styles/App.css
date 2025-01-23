@@ -33,13 +33,156 @@
   --tg-theme-button-text-color: var(--tg-theme-button-text-color, #fff);
 }
 
-/* Base styles */
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-family);
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  height: 100vh;
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #000);
+}
+
+.app-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--tg-theme-bg-color, #fff);
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--tg-theme-bg-color, #fff);
+  border-bottom: 1px solid var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--tg-theme-bg-color, #fff);
+}
+
+.message {
+  max-width: 80%;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  word-wrap: break-word;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #fff);
+}
+
+.message.assistant {
+  align-self: flex-start;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  color: var(--tg-theme-text-color, #000);
+}
+
+.input-container {
+  padding: 8px 16px;
+  background: var(--tg-theme-bg-color, #fff);
+  border-top: 1px solid var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
+}
+
+.input-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
+  border-radius: 18px;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  color: var(--tg-theme-text-color, #000);
+  font-size: 16px;
+}
+
+input::placeholder {
+  color: var(--tg-theme-hint-color, #999);
+}
+
+.send-button {
+  background: none;
+  border: none;
+  padding: 8px;
+  color: var(--tg-theme-button-color, #2481cc);
+  cursor: pointer;
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+}
+
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  background: var(--tg-theme-text-color, #000);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Markdown styles */
+.message.assistant pre {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 14px;
+}
+
+.message.assistant code {
+  font-family: monospace;
+}
+
+.message.assistant .inline-code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+/* Hide sidebar by default in Telegram */
+.sidebar, .sidebar-overlay, .history-button {
+  display: none;
 }
 
 /* Layout */
