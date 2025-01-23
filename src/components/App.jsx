@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
-import './App.css'
+import '../styles/App.css'
 import 'highlight.js/styles/github-dark.css'
 
 // Получаем WebApp из глобального объекта Telegram
@@ -24,38 +24,31 @@ function App() {
     }
   };
 
-  // Добавляем useEffect для прокрутки при изменении сообщений или статуса загрузки
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
 
   useEffect(() => {
-    // Добавляем проверку на существование tg
     if (!tg) {
       console.error('Telegram WebApp is not available');
       return;
     }
 
-    // Инициализируем Telegram WebApp
     tg.ready();
     
-    // Устанавливаем основной цвет из темы Telegram
     document.body.style.backgroundColor = tg.backgroundColor;
 
-    // Загружаем историю чатов
     const savedHistory = localStorage.getItem('chatHistory');
     if (savedHistory) {
       const history = JSON.parse(savedHistory);
       setChatHistory(history);
       
-      // Если есть история, но нет активного чата, открываем последний
       if (!currentChatId && history.length > 0) {
         const lastChat = history[history.length - 1];
         setCurrentChatId(lastChat.id);
         setMessages(lastChat.messages);
       }
     } else {
-      // Если истории нет, создаем первый чат с приветственным сообщением
       const initialMessage = {
         role: 'assistant',
         content: 'Hi, how are you?\n\nI\'m here to help with any questions. What would you like to ask?'
@@ -71,7 +64,6 @@ function App() {
       localStorage.setItem('chatHistory', JSON.stringify([firstChat]));
     }
 
-    // Настраиваем кнопку "Назад" в хедере Telegram
     tg.BackButton.onClick(() => {
       if (currentChatId) {
         setCurrentChatId(null);
@@ -81,8 +73,9 @@ function App() {
     });
   }, []);
 
-  // Обновляем useEffect для currentChatId
   useEffect(() => {
+    if (!tg) return;
+    
     if (currentChatId) {
       tg.BackButton.show();
     } else {
@@ -93,7 +86,7 @@ function App() {
   const createNewChat = () => {
     const newChat = {
       id: Date.now(),
-      name: 'Новый чат',  // Временное название
+      name: 'Новый чат',
       messages: []
     };
     setChatHistory(prev => {
@@ -103,43 +96,6 @@ function App() {
     });
     setCurrentChatId(newChat.id);
     setMessages([]);
-  };
-
-  const updateChatName = async (chatId, assistantResponses) => {
-    try {
-      const response = await fetch('http://localhost:3000/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          message: `Проанализируй эту переписку и реши, нужно ли изменить текущее название чата. Если нужно - предложи новое название (не более 4-5 слов). Ответь в формате: "ОСТАВИТЬ: текущее_название" или "ИЗМЕНИТЬ: новое_название". Вот содержание переписки: "${assistantResponses}"`,
-          isSystemMessage: true,
-          currentChatName: chatHistory.find(c => c.id === chatId)?.name
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        const [action, name] = data.reply.split(': ');
-        
-        if (action === 'ИЗМЕНИТЬ') {
-          setChatHistory(prev => {
-            const updated = prev.map(chat => {
-              if (chat.id === chatId) {
-                return { ...chat, name: name.replace(/["']/g, '') };
-              }
-              return chat;
-            });
-            localStorage.setItem('chatHistory', JSON.stringify(updated));
-            return updated;
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error generating chat name:', error);
-    }
   };
 
   const selectChat = (chatId) => {
@@ -161,7 +117,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -179,7 +135,6 @@ function App() {
         const newMessages = [...updatedMessages, assistantMessage];
         setMessages(newMessages);
 
-        // Обновляем историю чатов
         if (currentChatId) {
           setChatHistory(prev => {
             const updated = prev.map(chat => {
@@ -187,7 +142,7 @@ function App() {
                 return { 
                   ...chat, 
                   messages: newMessages,
-                  threadId: data.threadId // Сохраняем threadId
+                  threadId: data.threadId
                 };
               }
               return chat;
@@ -195,13 +150,6 @@ function App() {
             localStorage.setItem('chatHistory', JSON.stringify(updated));
             return updated;
           });
-
-          // Генерируем название после второго ответа
-          if (newMessages.length === 4) {
-            const firstResponse = newMessages[1].content;
-            const secondResponse = newMessages[3].content;
-            await updateChatName(currentChatId, `${firstResponse} ${secondResponse}`);
-          }
         }
       }
     } catch (error) {
@@ -322,7 +270,7 @@ function App() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default App 
+export default App; 
