@@ -25,11 +25,11 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-    extensions: ['.js', '.jsx', '.ts', '.tsx']
+    extensions: ['.js', '.ts', '.jsx', '.tsx']
   },
   esbuild: {
     loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
+    include: /src\/.*\.js$/,
     exclude: [],
   },
 }) 
