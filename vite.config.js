@@ -4,24 +4,13 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      jsxRuntime: 'automatic',
-      babel: {
-        plugins: [
-          ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
-        ]
-      }
-    })
-  ],
+  plugins: [react()],
   base: '/tg_app_einstein/', // Проверьте, что это точное имя вашего репозитория
   build: {
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
+      input: path.resolve(__dirname, 'index.html'),
       output: {
         manualChunks: undefined,
         assetFileNames: 'assets/[name].[hash].[ext]',
