@@ -7,6 +7,14 @@ export default defineConfig(({ command }) => ({
   // Используем base path только в production
   base: command === 'serve' ? '' : '/tg_app_einstein/',
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name].[hash].[ext]',
+        chunkFileNames: 'assets/[name].[hash].js',
+        entryFileNames: 'assets/[name].[hash].js',
+      }
+    }
   }
 })) 
