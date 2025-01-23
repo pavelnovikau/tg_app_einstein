@@ -5,16 +5,8 @@ const aiService = require('./services/ai-service');
 
 const app = express();
 
-// Настройка CORS для GitHub Pages и локальной разработки
-app.use(cors({
-  origin: [
-    'https://your-username.github.io',
-    'http://localhost:5173',
-    'http://localhost:3000'
-  ],
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
+// Настройка CORS
+app.use(cors());
 app.use(express.json());
 
 app.post('/api/chat', async (req, res) => {
