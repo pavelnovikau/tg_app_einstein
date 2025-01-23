@@ -163,23 +163,12 @@ function App() {
   };
 
   return (
-    <div className="app-container" style={{ height: tg?.viewportHeight || '100vh' }}>
-      <div className="chat-container">
+    <div className="app-container">
+      <div className={`chat-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="chat-header">
           <button className="history-button" onClick={toggleSidebar}>
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path 
-                d="M3 12h18M3 6h18M3 18h18" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round"
-              />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
           <div className="header-info">
@@ -187,14 +176,9 @@ function App() {
           </div>
         </div>
 
-        {isSidebarOpen && (
-          <div className="sidebar-overlay" onClick={toggleSidebar}></div>
-        )}
-
+        <div className={`sidebar-overlay ${isSidebarOpen ? 'visible' : ''}`} onClick={toggleSidebar}></div>
+        
         <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-          <button className="new-chat-btn" onClick={createNewChat}>
-            Новый чат
-          </button>
           <div className="chat-history">
             {chatHistory.map((chat) => (
               <div
@@ -206,9 +190,6 @@ function App() {
               </div>
             ))}
           </div>
-          <button className="subscription-btn" onClick={() => tg.openInvoice('your_invoice_url')}>
-            Подписка
-          </button>
         </div>
 
         <div className="messages-container" ref={messagesContainerRef}>
