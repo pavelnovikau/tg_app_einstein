@@ -4,7 +4,16 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      jsxRuntime: 'automatic',
+      babel: {
+        plugins: [
+          ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
+        ]
+      }
+    })
+  ],
   base: '/tg_app_einstein/', // Проверьте, что это точное имя вашего репозитория
   build: {
     outDir: 'dist',
@@ -25,11 +34,11 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-    extensions: ['.js', '.ts', '.jsx', '.tsx']
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
   esbuild: {
+    jsxFactory: 'React.createElement',
+    jsxFragment: 'React.Fragment',
     loader: 'jsx',
-    include: /src\/.*\.js$/,
-    exclude: [],
   },
 }) 
