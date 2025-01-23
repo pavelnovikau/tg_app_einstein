@@ -3,8 +3,9 @@ services:
     name: einstein-chat-api
     env: node
     region: frankfurt  # или выберите другой регион
+    rootDir: server  # указываем корневую директорию для бэкенда
     buildCommand: npm install
-    startCommand: node server/index.js
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production

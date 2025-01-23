@@ -6,25 +6,31 @@ const aiService = require('./services/ai-service');
 const app = express();
 
 // Настройка CORS
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'https://your-username.github.io'  // Замените на ваш GitHub Pages домен
-];
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
+if (isDevelopment) {
+  // Для разработки - только локальные источники
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174'
+  ];
+
+  app.use(cors({
+    origin: function(origin, callback) {
+      if(!origin) return callback(null, true);
+      if(allowedOrigins.indexOf(origin) === -1){
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    methods: ['GET', 'POST'],
+    credentials: true
+  }));
+} else {
+  // Для продакшена - разрешаем все источники
+  app.use(cors());
+}
 
 app.use(express.json());
 
@@ -65,7 +71,7 @@ app.get('/api/chat/history/:threadId', async (req, res) => {
     }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 }); 
