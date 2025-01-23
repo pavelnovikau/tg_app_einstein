@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: einstein-chat-api
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_ASSISTANT_ID
+        sync: false
+      - key: TELEGRAM_TOKEN
+        sync: false 
