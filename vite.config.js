@@ -21,5 +21,11 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+  },
+  esbuild: {
+    loader: 'jsx',
+    include: /src\/.*\.jsx?$/,
+    exclude: [],
   },
 }) 
