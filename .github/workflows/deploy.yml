@@ -35,6 +35,8 @@ jobs:
           ls -la dist/
           echo "Assets:"
           ls -la dist/assets/
+          echo "Index.html content:"
+          cat dist/index.html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
