@@ -5,7 +5,7 @@ services:
     region: frankfurt  # или выберите другой регион
     rootDir: server  # указываем корневую директорию для бэкенда
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node index.js  # изменяем на прямой запуск файла
     envVars:
       - key: NODE_ENV
         value: production
