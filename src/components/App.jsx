@@ -62,25 +62,7 @@ function App() {
       setMessages([initialMessage]);
       localStorage.setItem('chatHistory', JSON.stringify([firstChat]));
     }
-
-    tg.BackButton.onClick(() => {
-      if (currentChatId) {
-        setCurrentChatId(null);
-        setMessages([]);
-        tg.BackButton.hide();
-      }
-    });
   }, []);
-
-  useEffect(() => {
-    if (!tg) return;
-    
-    if (currentChatId) {
-      tg.BackButton.show();
-    } else {
-      tg.BackButton.hide();
-    }
-  }, [currentChatId]);
 
   const createNewChat = () => {
     const newChat = {
@@ -114,6 +96,7 @@ function App() {
     setMessages(updatedMessages);
     setInputValue('');
     setIsLoading(true);
+    console.log('Loading started:', isLoading);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat`, {
@@ -128,6 +111,7 @@ function App() {
       });
 
       const data = await response.json();
+      console.log('Response received');
       
       if (response.ok) {
         const assistantMessage = { role: 'assistant', content: data.reply };
@@ -138,10 +122,21 @@ function App() {
           setChatHistory(prev => {
             const updated = prev.map(chat => {
               if (chat.id === currentChatId) {
+                let newName = chat.name;
+                if (newMessages.length === 3) {
+                  newName = userMessage.content.slice(0, 30) + (userMessage.content.length > 30 ? '...' : '');
+                } else if (newMessages.length === 5) {
+                  const firstUserMessage = newMessages.find(m => m.role === 'user');
+                  if (firstUserMessage) {
+                    newName = firstUserMessage.content.slice(0, 30) + (firstUserMessage.content.length > 30 ? '...' : '');
+                  }
+                }
+
                 return { 
                   ...chat, 
                   messages: newMessages,
-                  threadId: data.threadId
+                  threadId: data.threadId,
+                  name: newName
                 };
               }
               return chat;
@@ -155,6 +150,7 @@ function App() {
       console.error('Error:', error);
     } finally {
       setIsLoading(false);
+      console.log('Loading finished:', isLoading);
     }
   };
 
@@ -179,6 +175,9 @@ function App() {
         <div className={`sidebar-overlay ${isSidebarOpen ? 'visible' : ''}`} onClick={toggleSidebar}></div>
         
         <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+          <button className="new-chat-btn" onClick={createNewChat}>
+            Новый чат
+          </button>
           <div className="chat-history">
             {chatHistory.map((chat) => (
               <div
@@ -190,6 +189,9 @@ function App() {
               </div>
             ))}
           </div>
+          <button className="subscription-btn" disabled>
+            Подписка
+          </button>
         </div>
 
         <div className="messages-container" ref={messagesContainerRef}>
@@ -223,7 +225,7 @@ function App() {
           ))}
           {isLoading && (
             <div className="message assistant">
-              <div className="message-content typing-indicator">
+              <div className="typing-indicator">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -233,7 +235,7 @@ function App() {
         </div>
 
         <div className="input-container">
-          <form onSubmit={handleSubmit} className="input-form">
+          <form onSubmit={handleSubmit} className={`input-form ${isLoading ? 'loading' : ''}`}>
             <input
               type="text"
               value={inputValue}
