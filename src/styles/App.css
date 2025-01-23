@@ -378,4 +378,23 @@ input::placeholder {
   font-size: 15px;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+/* Loading screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  z-index: 1000;
+}
+
+.loading-screen .typing-indicator {
+  background: none;
+  box-shadow: none;
 } 

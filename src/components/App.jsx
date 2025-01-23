@@ -8,7 +8,7 @@ import 'highlight.js/styles/github-dark.css'
 import { useTelegram } from '../hooks/useTelegram'
 
 function App() {
-  const { tg } = useTelegram();
+  const { tg, isReady } = useTelegram();
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,13 +28,11 @@ function App() {
   }, [messages, isLoading]);
 
   useEffect(() => {
-    console.log('Initializing app...', { tg, window: window?.Telegram?.WebApp });
+    if (!isReady) return;
     
-    if (!tg) {
-      console.error('Telegram WebApp is not available');
-      // Still continue initialization even if tg is not available
-    } else {
-      tg.ready();
+    console.log('App initialized, Telegram WebApp status:', { tg, isReady });
+    
+    if (tg) {
       document.body.style.backgroundColor = tg?.backgroundColor || '#ffffff';
     }
     
@@ -51,13 +49,12 @@ function App() {
         }
       } catch (error) {
         console.error('Error parsing chat history:', error);
-        // Reset to initial state if there's an error
         initializeNewChat();
       }
     } else {
       initializeNewChat();
     }
-  }, []);
+  }, [isReady]);
 
   const initializeNewChat = () => {
     const initialMessage = {
@@ -158,6 +155,18 @@ function App() {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  if (!isReady) {
+    return (
+      <div className="loading-screen">
+        <div className="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
