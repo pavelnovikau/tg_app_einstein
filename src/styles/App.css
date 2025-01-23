@@ -22,6 +22,7 @@ html {
   width: 100%;
   overflow: hidden;
   position: fixed;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -33,6 +34,7 @@ body {
   background: var(--color-bg);
   overflow: hidden;
   position: fixed;
+  -webkit-overflow-scrolling: touch;
 }
 
 .app-container {
@@ -47,6 +49,7 @@ body {
   overflow: hidden;
   height: 100%;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .chat-container {
@@ -345,8 +348,13 @@ input::placeholder {
 }
 
 @supports (-webkit-touch-callout: none) {
+  .app-container {
+    height: -webkit-fill-available;
+  }
+  
   .messages-container {
-    height: calc(100vh - 120px); /* Adjust based on your header and input heights */
+    height: calc(100vh - 120px);
+    height: calc(-webkit-fill-available - 120px);
   }
   
   .input-container {

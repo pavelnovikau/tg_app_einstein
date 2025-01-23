@@ -28,41 +28,52 @@ function App() {
   }, [messages, isLoading]);
 
   useEffect(() => {
+    console.log('Initializing app...', { tg, window: window?.Telegram?.WebApp });
+    
     if (!tg) {
       console.error('Telegram WebApp is not available');
-      return;
+      // Still continue initialization even if tg is not available
+    } else {
+      tg.ready();
+      document.body.style.backgroundColor = tg?.backgroundColor || '#ffffff';
     }
-
-    tg.ready();
     
-    document.body.style.backgroundColor = tg.backgroundColor;
-
     const savedHistory = localStorage.getItem('chatHistory');
     if (savedHistory) {
-      const history = JSON.parse(savedHistory);
-      setChatHistory(history);
-      
-      if (!currentChatId && history.length > 0) {
-        const lastChat = history[history.length - 1];
-        setCurrentChatId(lastChat.id);
-        setMessages(lastChat.messages);
+      try {
+        const history = JSON.parse(savedHistory);
+        setChatHistory(history);
+        
+        if (!currentChatId && history.length > 0) {
+          const lastChat = history[history.length - 1];
+          setCurrentChatId(lastChat.id);
+          setMessages(lastChat.messages);
+        }
+      } catch (error) {
+        console.error('Error parsing chat history:', error);
+        // Reset to initial state if there's an error
+        initializeNewChat();
       }
     } else {
-      const initialMessage = {
-        role: 'assistant',
-        content: 'Hi, how are you?\n\nI\'m here to help with any questions. What would you like to ask?'
-      };
-      const firstChat = {
-        id: Date.now(),
-        name: 'Новый чат',
-        messages: [initialMessage]
-      };
-      setChatHistory([firstChat]);
-      setCurrentChatId(firstChat.id);
-      setMessages([initialMessage]);
-      localStorage.setItem('chatHistory', JSON.stringify([firstChat]));
+      initializeNewChat();
     }
   }, []);
+
+  const initializeNewChat = () => {
+    const initialMessage = {
+      role: 'assistant',
+      content: 'Hi, how are you?\n\nI\'m here to help with any questions. What would you like to ask?'
+    };
+    const firstChat = {
+      id: Date.now(),
+      name: 'Новый чат',
+      messages: [initialMessage]
+    };
+    setChatHistory([firstChat]);
+    setCurrentChatId(firstChat.id);
+    setMessages([initialMessage]);
+    localStorage.setItem('chatHistory', JSON.stringify([firstChat]));
+  };
 
   const createNewChat = () => {
     const newChat = {
@@ -71,7 +82,7 @@ function App() {
       messages: []
     };
     setChatHistory(prev => {
-      const updatedHistory = [...prev, newChat];
+      const updatedHistory = [newChat, ...prev];
       localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
       return updatedHistory;
     });
@@ -96,7 +107,6 @@ function App() {
     setMessages(updatedMessages);
     setInputValue('');
     setIsLoading(true);
-    console.log('Loading started:', isLoading);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat`, {
@@ -111,46 +121,37 @@ function App() {
       });
 
       const data = await response.json();
-      console.log('Response received');
       
       if (response.ok) {
         const assistantMessage = { role: 'assistant', content: data.reply };
         const newMessages = [...updatedMessages, assistantMessage];
         setMessages(newMessages);
 
-        if (currentChatId) {
-          setChatHistory(prev => {
-            const updated = prev.map(chat => {
-              if (chat.id === currentChatId) {
-                let newName = chat.name;
-                if (newMessages.length === 3) {
-                  newName = userMessage.content.slice(0, 30) + (userMessage.content.length > 30 ? '...' : '');
-                } else if (newMessages.length === 5) {
-                  const firstUserMessage = newMessages.find(m => m.role === 'user');
-                  if (firstUserMessage) {
-                    newName = firstUserMessage.content.slice(0, 30) + (firstUserMessage.content.length > 30 ? '...' : '');
-                  }
-                }
+        setChatHistory(prev => {
+          const updated = prev.map(chat => {
+            if (chat.id === currentChatId) {
+              const firstUserMessage = newMessages.find(m => m.role === 'user');
+              const newName = firstUserMessage 
+                ? firstUserMessage.content.slice(0, 30) + (firstUserMessage.content.length > 30 ? '...' : '')
+                : chat.name;
 
-                return { 
-                  ...chat, 
-                  messages: newMessages,
-                  threadId: data.threadId,
-                  name: newName
-                };
-              }
-              return chat;
-            });
-            localStorage.setItem('chatHistory', JSON.stringify(updated));
-            return updated;
+              return { 
+                ...chat, 
+                messages: newMessages,
+                threadId: data.threadId,
+                name: newName
+              };
+            }
+            return chat;
           });
-        }
+          localStorage.setItem('chatHistory', JSON.stringify(updated));
+          return updated;
+        });
       }
     } catch (error) {
       console.error('Error:', error);
     } finally {
       setIsLoading(false);
-      console.log('Loading finished:', isLoading);
     }
   };
 
@@ -255,4 +256,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
