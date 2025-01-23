@@ -1,17 +1,15 @@
 services:
   - type: web
-    name: einstein-chat-api
-    env: node
-    region: frankfurt  # или выберите другой регион
-    rootDir: server  # указываем корневую директорию для бэкенда
-    buildCommand: npm install
-    startCommand: node index.js  # изменяем на прямой запуск файла
+    name: tg-app-einstein-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: true
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: OPENAI_ASSISTANT_ID
-        sync: false
-      - key: TELEGRAM_TOKEN
+      - key: VITE_API_BASE_URL
+        fromService:
+          name: tg-app-einstein-backend
+          type: web
+          property: url
+      - key: VITE_TELEGRAM_BOT_USERNAME
         sync: false 

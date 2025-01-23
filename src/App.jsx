@@ -7,7 +7,7 @@ import './App.css'
 import 'highlight.js/styles/github-dark.css'
 
 // Получаем WebApp из глобального объекта Telegram
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp;
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -30,6 +30,12 @@ function App() {
   }, [messages, isLoading]);
 
   useEffect(() => {
+    // Добавляем проверку на существование tg
+    if (!tg) {
+      console.error('Telegram WebApp is not available');
+      return;
+    }
+
     // Инициализируем Telegram WebApp
     tg.ready();
     
@@ -210,7 +216,7 @@ function App() {
   };
 
   return (
-    <div className="app-container" style={{ height: tg.viewportHeight }}>
+    <div className="app-container" style={{ height: tg?.viewportHeight || '100vh' }}>
       <div className="chat-container">
         <div className="chat-header">
           <button className="history-button" onClick={toggleSidebar}>
