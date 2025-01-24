@@ -12,8 +12,16 @@ export function useTelegram() {
         const initTelegram = () => {
             if (window?.Telegram?.WebApp) {
                 const webApp = window.Telegram.WebApp;
-                setTg(webApp);
+                
+                // Инициализация темы и viewport
+                webApp.setHeaderColor('#ffffff');
+                webApp.setBackgroundColor('#ffffff');
+                
+                // Установка готовности приложения
                 webApp.ready();
+                webApp.expand();
+
+                setTg(webApp);
                 setIsReady(true);
                 console.log('Telegram WebApp initialized successfully');
             } else if (attempts < maxAttempts) {
@@ -22,7 +30,7 @@ export function useTelegram() {
                 console.log('Waiting for Telegram WebApp to load...', attempts);
             } else {
                 console.error('Failed to initialize Telegram WebApp');
-                setIsReady(true); // Continue anyway
+                setIsReady(true); // Continue anyway for web testing
             }
         };
 
@@ -36,16 +44,16 @@ export function useTelegram() {
     }, []);
 
     const onClose = () => {
-        tg.close()
-    }
+        tg?.close();
+    };
 
     const onToggleButton = () => {
-        if (tg.MainButton.isVisible) {
+        if (tg?.MainButton.isVisible) {
             tg.MainButton.hide();
         } else {
             tg.MainButton.show();
         }
-    }
+    };
 
     return {
         onClose,
@@ -54,5 +62,5 @@ export function useTelegram() {
         user: tg?.initDataUnsafe?.user,
         queryId: tg?.initDataUnsafe?.query_id,
         isReady,
-    }
+    };
 } 
