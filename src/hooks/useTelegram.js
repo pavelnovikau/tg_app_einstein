@@ -13,13 +13,18 @@ export function useTelegram() {
             if (window?.Telegram?.WebApp) {
                 const webApp = window.Telegram.WebApp;
                 
-                // Инициализация темы и viewport
-                webApp.setHeaderColor('#ffffff');
-                webApp.setBackgroundColor('#ffffff');
-                
-                // Установка готовности приложения
-                webApp.ready();
-                webApp.expand();
+                try {
+                    // Инициализация темы и viewport
+                    webApp.setHeaderColor('#ffffff');
+                    webApp.setBackgroundColor('#ffffff');
+                    
+                    // Установка готовности приложения
+                    webApp.ready();
+                    webApp.expand();
+                } catch (error) {
+                    console.warn('Some Telegram WebApp methods failed:', error);
+                    // Продолжаем работу даже если некоторые методы недоступны
+                }
 
                 setTg(webApp);
                 setIsReady(true);
@@ -29,8 +34,8 @@ export function useTelegram() {
                 timeoutId = setTimeout(initTelegram, 100);
                 console.log('Waiting for Telegram WebApp to load...', attempts);
             } else {
-                console.error('Failed to initialize Telegram WebApp');
-                setIsReady(true); // Continue anyway for web testing
+                console.warn('Running in web mode without Telegram WebApp');
+                setIsReady(true); // Продолжаем работу в веб-режиме
             }
         };
 
@@ -43,12 +48,22 @@ export function useTelegram() {
         };
     }, []);
 
+    // Безопасные методы для веб-версии
     const onClose = () => {
-        tg?.close();
+        if (tg?.close) {
+            tg.close();
+        } else {
+            console.warn('Close method not available in web mode');
+        }
     };
 
     const onToggleButton = () => {
-        if (tg?.MainButton.isVisible) {
+        if (!tg?.MainButton) {
+            console.warn('MainButton not available in web mode');
+            return;
+        }
+
+        if (tg.MainButton.isVisible) {
             tg.MainButton.hide();
         } else {
             tg.MainButton.show();
@@ -62,5 +77,6 @@ export function useTelegram() {
         user: tg?.initDataUnsafe?.user,
         queryId: tg?.initDataUnsafe?.query_id,
         isReady,
+        isWebMode: !window?.Telegram?.WebApp
     };
 } 
