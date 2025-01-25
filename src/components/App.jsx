@@ -35,24 +35,38 @@ function App() {
     if (tg) {
       document.body.style.backgroundColor = tg?.backgroundColor || '#ffffff';
       
-      // Обработка появления/скрытия клавиатуры
-      const handleViewportChange = () => {
-        if (tg.isExpanded) {
-          const isKeyboardVisible = window.innerHeight < tg.viewportStableHeight;
-          document.body.classList.toggle('keyboard-visible', isKeyboardVisible);
-          
-          if (isKeyboardVisible) {
-            // Прокручиваем к полю ввода при появлении клавиатуры
-            setTimeout(() => {
-              const input = document.querySelector('.input-form input');
-              input?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-          }
-        }
+      // Обработка viewport в Telegram WebApp
+      const setAppHeight = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
       };
 
-      window.addEventListener('resize', handleViewportChange);
-      return () => window.removeEventListener('resize', handleViewportChange);
+      // Инициализация высоты
+      setAppHeight();
+
+      // Обработка изменения размера окна
+      window.addEventListener('resize', setAppHeight);
+      
+      // Обработка появления клавиатуры
+      const handleFocus = () => {
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          const input = document.querySelector('.input-form input');
+          if (input) {
+            const rect = input.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            window.scrollTo(0, rect.top + scrollTop - window.innerHeight / 2);
+          }
+        }, 100);
+      };
+
+      const input = document.querySelector('.input-form input');
+      input?.addEventListener('focus', handleFocus);
+
+      return () => {
+        window.removeEventListener('resize', setAppHeight);
+        input?.removeEventListener('focus', handleFocus);
+      };
     }
     
     const savedHistory = localStorage.getItem('chatHistory');
