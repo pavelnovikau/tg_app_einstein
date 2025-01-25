@@ -34,6 +34,25 @@ function App() {
     
     if (tg) {
       document.body.style.backgroundColor = tg?.backgroundColor || '#ffffff';
+      
+      // Обработка появления/скрытия клавиатуры
+      const handleViewportChange = () => {
+        if (tg.isExpanded) {
+          const isKeyboardVisible = window.innerHeight < tg.viewportStableHeight;
+          document.body.classList.toggle('keyboard-visible', isKeyboardVisible);
+          
+          if (isKeyboardVisible) {
+            // Прокручиваем к полю ввода при появлении клавиатуры
+            setTimeout(() => {
+              const input = document.querySelector('.input-form input');
+              input?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+          }
+        }
+      };
+
+      window.addEventListener('resize', handleViewportChange);
+      return () => window.removeEventListener('resize', handleViewportChange);
     }
     
     const savedHistory = localStorage.getItem('chatHistory');
